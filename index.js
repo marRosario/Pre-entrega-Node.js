@@ -1,9 +1,46 @@
 const [, , method,resource,...args]=process.argv;
 const baseURL="http://fakestoreapi.com";
 
+function validarComando(method, resource, argv){
+    const metodo= method?.toUpperCase()
+    const esProducto=/^products(\/\d+)?$/.test(resource);
+     
+    
+    if(!["GET", "POST","PUT","DELETE"].includes(metodo)){
+        console.log("Comando erroneo. Ejemplos válidos")
+        console.log("-npm start GET products")
+        console.log("- npm start GET products/2")
+        console.log("- npm start POST products")
+        console.log("- npm start PUT products/1\"title\" price \"category\"" )
+        console.log("- npm start DELETE products/3")
+
+    return false
+    }
+if (metodo ==="GET" && !esProducto){
+    console.log("Comando erroneo. Debes usar: npm start GET products o npm start GET products/{id}")
+    return false 
+}
+if (metodo ==="POST" && resource !== "products"){
+    console.log("Comando erroneo. Debes usar: npm start POST products ")
+    return false 
+}
+
+if (metodo ==="PUT" && !/^products\/\d+$/.test(resource)){
+    console.log("Comando erroneo. Debes usar: npm start PUT products/{id} \"title\" price\"category\"")
+    return false 
+}
+
+if (metodo ==="DELETE" && !/^products\/\d+$/.test(resource)){
+    console.log("Comando erroneo. Debes usar: npm start PUT products/{id}")
+    return false 
+}
+return true 
+}
 async function main(){
 
     try{
+        if(!validarComando(method, resource,args))
+            return;
         switch(method.toUpperCase()){
             case "GET":
                 await handleGet(resource, args);
@@ -18,8 +55,7 @@ async function main(){
             case "DELETE":
                 await handleDelete(resource);
                 break;
-                default:
-                    console.log("El metodo no es correcto. Usa GET, POST o DELETE.");
+               
  
         }
     }catch(error){
